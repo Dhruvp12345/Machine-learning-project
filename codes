@@ -1,0 +1,109 @@
+
+class House:
+    def _init_(self, owner, price, bedrooms, bathrooms, area):
+        self.owner = owner
+        self.price = price
+        self.bedrooms = bedrooms
+        self.bathrooms = bathrooms
+        self.area = area
+
+# Dictionary to store house information
+houses = {
+    1: House(owner="John Doe", price=250000, bedrooms=3, bathrooms=2, area=1800),
+    2: House(owner="Jane Smith", price=350000, bedrooms=4, bathrooms=3, area=2200),
+    3: House(owner="Alice Johnson", price=400000, bedrooms=5, bathrooms=3.5, area=2800),
+    # Add more houses as needed
+}
+
+def search_houses(min_bedrooms=None, max_price=None):
+    results = []
+    for house_id, house in houses.items():
+        if (min_bedrooms is None or house.bedrooms >= min_bedrooms) and \
+           (max_price is None or house.price <= max_price):
+            results.append((house_id, house))
+    return results
+
+def main():
+    print("Welcome to the House Search App!")
+    print("1. Search Houses")
+    print("2. Exit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        min_bedrooms = int(input("Enter minimum number of bedrooms (or leave blank): ") or 0)
+        max_price = float(input("Enter maximum price (or leave blank): ") or float('inf'))
+
+        results = search_houses(min_bedrooms, max_price)
+        if results:
+            print("\nSearch Results:")
+            for house_id, house in results:
+                print(f"House ID: {house_id}")
+                print(f"Owner: {house.owner}")
+                print(f"Price: ${house.price}")
+                print(f"Bedrooms: {house.bedrooms}")
+                print(f"Bathrooms: {house.bathrooms}")
+                print(f"Area: {house.area} sqft\n")
+        else:
+            print("\nNo houses found matching the criteria.")
+    elif choice == "2":
+        print("Exiting...")
+    else:
+        print("Invalid choice. Please enter 1 or 2.")
+
+if _name_ == "_main_":
+    main()
+class House:
+    def _init_(self, owner, price, bedrooms, bathrooms, area):
+        self.owner = owner
+        self.price = price
+        self.bedrooms = bedrooms
+        self.bathrooms = bathrooms
+        self.area = area
+
+# Dictionary to store house information
+houses = {
+    1: House(owner="John Doe", price=250000, bedrooms=3, bathrooms=2, area=1800),
+    2: House(owner="Jane Smith", price=350000, bedrooms=4, bathrooms=3, area=2200),
+    3: House(owner="Alice Johnson", price=400000, bedrooms=5, bathrooms=3.5, area=2800),
+    # Add more houses as needed
+}
+
+def search_houses(min_bedrooms=None, max_price=None):
+    results = []
+    for house_id, house in houses.items():
+        if (min_bedrooms is None or house.bedrooms >= min_bedrooms) and \
+           (max_price is None or house.price <= max_price):
+            results.append((house_id, house))
+    return results
+
+def main():
+    print("Welcome to the House Search App!")
+    print("1. Search Houses")
+    print("2. Exit")
+
+    choice = input("Enter your choice: ")
+
+    if choice == "1":
+        min_bedrooms = int(input("Enter minimum number of bedrooms (or leave blank): ") or 0)
+        max_price = float(input("Enter maximum price (or leave blank): ") or float('inf'))
+
+        results = search_houses(min_bedrooms, max_price)
+        if results:
+            print("\nSearch Results:")
+            for house_id, house in results:
+                print(f"House ID: {house_id}")
+                print(f"Owner: {house.owner}")
+                print(f"Price: ${house.price}")
+                print(f"Bedrooms: {house.bedrooms}")
+                print(f"Bathrooms: {house.bathrooms}")
+                print(f"Area: {house.area} sqft\n")
+        else:
+            print("\nNo houses found matching the criteria.")
+    elif choice == "2":
+        print("Exiting...")
+    else:
+        print("Invalid choice. Please enter 1 or 2.")
+
+if _name_ == "_main_":
+    main()
