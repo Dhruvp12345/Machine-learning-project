@@ -1,0 +1,239 @@
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+import re
+import geopandas as gpd
+import plotly.express as px
+from shapely.geometry import Point
+import seaborn as sns
+import missingno as msno
+pd.set_option('display.max_columns', None) 
+
+
+df=pd.read_csv("/content/Electric_Vehicle_Population_Data 2.csv")
+df
+
+
+df.shape
+
+
+
+df.info
+
+
+msno.matrix(df);
+
+
+df = df.dropna()
+
+pd.isnull(df).sum()
+
+
+df.columns
+
+df.describe()
+
+df[['Model', 'Electric Range', '2020 Census Tract']].describe()
+
+
+ax = sns.countplot(x = 'Model Year',data = df)
+
+for bars in ax.containers:
+    ax.bar_label(bars)
+
+
+
+ax = sns.countplot(data = df, x = 'Electric Range', hue = 'Model')
+
+for bars in ax.containers:
+    ax.bar_label(bars)
+
+
+
+
+ax = sns.countplot(data = df, x = '2020 Census Tract')
+
+sns.set(rc={'figure.figsize':(7,5)})
+for bars in ax.containers:
+    ax.bar_label(bars)
+
+
+
+fig1,ax1 = plt.subplots(figsize=(12,7))
+df.groupby('Vehicle Location')['Postal Code'].sum().nlargest(10).sort_values(ascending=True).plot(kind='bar')
+
+
+
+
+
+# Convert the 'Vehicle Location' column to string type
+df['Vehicle Location'] = df['Vehicle Location'].astype(str)
+
+# Extract the latitude and longitude from the 'Vehicle Location' column
+def extract_coordinates(x, index):
+    coords = re.findall(r'-?\d+\.\d+', x)
+    if len(coords) >= 2:
+        return float(coords[index])
+    else:
+        return None
+
+df['latitude'] = df['Vehicle Location'].apply(lambda x: extract_coordinates(x, 0))
+df['longitude'] = df['Vehicle Location'].apply(lambda x: extract_coordinates(x, 1))
+
+df = df.dropna(subset=['latitude', 'longitude'])
+
+
+
+
+
+
+
+
+
+
+
+
+df['Location'] = df['County'] + ', ' + df['City'] + ', ' + df['State']
+
+
+
+df['Base MSRP'].value_counts()
+
+
+def create_price_range_category(df, column='Base MSRP'):
+    def categorize_price(price):
+        if price == 0:
+            return "Unknown"
+        elif price < 40000:
+            return "Low"
+        elif price < 60000:
+            return "Medium"
+        else:
+            return "High"
+
+    df['Price_Range_Category'] = df[column].apply(categorize_price)
+    return df
+
+df = create_price_range_category(df, column='Base MSRP')
+
+
+
+
+
+
+def create_electric_range_category(df, column='Electric Range'):
+    def categorize_range(electric_range):
+        if electric_range == 0:
+            return "Unknown"
+        elif electric_range < 150:
+            return "Short"
+        elif electric_range < 300:
+            return "Medium"
+        else:
+            return "Long"
+
+    df['Electric_Range_Category'] = df[column].apply(categorize_range)
+    return df
+
+df = create_electric_range_category(df, column='Electric Range')
+
+
+
+
+# Displaying the cleaned and feature engineered DataFrame
+display(df.head())
+
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def plot_value_counts(df, column, top_n=None):
+    # Get the value counts for the specified column
+    value_counts = df[column].value_counts()
+    
+    if top_n:
+        value_counts = value_counts.head(top_n)
+    
+    # Set up the subplots
+    fig, axes = plt.subplots(1, 2, figsize=(20, 7))
+    
+    # Create the pie chart
+    value_counts.plot(kind='pie', ax=axes[0], autopct='%.1f%%', startangle=90, colors=sns.color_palette('pastel'))
+    axes[0].set_ylabel('')
+    axes[0].set_title(f'Percentage of {column}', fontsize=14)
+    
+    # Create the bar chart
+    sns.barplot(x=value_counts.index, y=value_counts.values, ax=axes[1], palette='pastel')
+    axes[1].set_title(f'Count of {column}', fontsize=14)
+    axes[1].set_xlabel(column)
+    axes[1].set_ylabel('Count')
+    axes[1].tick_params(axis='x', rotation=30)
+
+    for i, v in enumerate(value_counts.values):
+        axes[1].text(i, v + 0.5, str(v), horizontalalignment='center', fontsize=12)
+    
+    # Set the suptitle for the entire figure
+    fig.suptitle(f'{column} Distribution', fontsize=18, y=1.03)
+    
+    # Show the plots
+    plt.show()
+
+def plot_coordinates_seaborn(df, cmap_column=None, top_n=None, figsize=(15, 10)):
+    # Drop duplicate latitude and longitude pairs
+    unique_coordinates = df[['latitude', 'longitude']].drop_duplicates()
+
+    if cmap_column and top_n:
+        # Include the cmap_column in the unique_coordinates DataFrame
+        unique_coordinates[cmap_column] = df[cmap_column]
+
+        # Get the top N most frequent categories in the specified column
+        top_categories = unique_coordinates[cmap_column].value_counts().head(top_n).index.tolist()
+
+        # Filter the unique_coordinates DataFrame to keep only the top N categories
+        filtered_coordinates = unique_coordinates[unique_coordinates[cmap_column].isin(top_categories)]
+
+        # Create a scatter plot using Seaborn with hue parameter
+        plt.figure(figsize=figsize)
+        sns.scatterplot(data=filtered_coordinates, x='longitude', y='latitude', hue=cmap_column, palette='viridis', edgecolor=None, s=50)
+        plt.title(f'Latitude and Longitude Points (Top {top_n} {cmap_column})')
+    else:
+        # Create a scatter plot using Seaborn without hue parameter
+        plt.figure(figsize=figsize)
+        sns.scatterplot(data=unique_coordinates, x='longitude', y='latitude', color='darkcyan', edgecolor=None, s=50)
+        plt.title('Latitude and Longitude Points')
+
+    # Show the plot
+    plt.show()
+
+
+
+
+
+plot_value_counts(df, 'Location', top_n=10)
+
+
+
+
+plot_value_counts(df, 'Clean Alternative Fuel Vehicle (CAFV) Eligibility', top_n=3)
+
+
+
+
+plot_value_counts(df, 'Make', top_n=10)
+
+
+plot_value_counts(df, 'Model', top_n=10)
+
+
+plot_value_counts(df, 'Electric Vehicle Type', top_n=2)
+
+
+plot_value_counts(df, 'Price_Range_Category', top_n=4)
+
+
+plot_value_counts(df, 'Electric Utility', top_n=5)
